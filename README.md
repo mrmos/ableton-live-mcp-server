@@ -18,13 +18,26 @@ This project consists of two main components:
 - Implements request-response handling for Ableton Live commands.
 
 ## ⚡ Installation
-### Requirements
-- Python 3.8+
-- `python-osc` (for OSC communication)
-- `fastmcp` (for MCP support)
-- [AbletonOSC](https://github.com/ideoforms/AbletonOSC) as a control surface
 
-### Installation Steps
+### Option 1: Install with UV (Recommended)
+
+1. Install UV if you don't have it already:
+   ```bash
+   pip install uv
+   ```
+
+2. Install directly from PyPI:
+   ```bash
+   uv install ableton-live-mcp-server
+   ```
+
+3. Or install from GitHub:
+   ```bash
+   uv install git+https://github.com/yourusername/ableton-live-mcp-server.git
+   ```
+
+### Option 2: Manual Installation
+
 1. Install `uv`
    ```bash
    pip install uv
@@ -51,12 +64,26 @@ This project consists of two main components:
 ### Running the OSC Daemon
 The OSC daemon will handle OSC communication between the MCP server and Ableton Live:
 ```bash
+# If installed via UV:
+ableton-osc-daemon
+
+# Or if running from source:
 python osc_daemon.py
 ```
 This will:
 - Listen for MCP client connections on port **65432**.
 - Forward messages to Ableton Live via OSC on port **11000**.
 - Receive OSC responses from Ableton on port **11001**.
+
+### Running the MCP Server
+Start the MCP server to enable LLMs to control Ableton:
+```bash
+# If installed via UV:
+ableton-mcp-server
+
+# Or if running from source:
+python mcp_ableton_server.py
+```
 
 ### Example Usage
 In Claude desktop, ask Claude:
@@ -69,13 +96,9 @@ By default, the server and daemon run on **localhost (127.0.0.1)** with the foll
 - **Ableton Live OSC Port (Send):** 11000
 - **Ableton Live OSC Port (Receive):** 11001
 
-To modify these, edit the `AbletonOSCDaemon` class in `osc_daemon.py`:
-```python
-self.socket_host = '127.0.0.1'
-self.socket_port = 65432
-self.ableton_host = '127.0.0.1'
-self.ableton_port = 11000
-self.receive_port = 11001
+To modify these, edit the `AbletonOSCDaemon` class in `osc_daemon.py` or use command-line parameters:
+```bash
+ableton-osc-daemon --socket-port 65432 --ableton-port 11000 --receive-port 11001
 ```
 
 ### Claude Desktop Configurations
@@ -89,13 +112,7 @@ self.receive_port = 11001
       "command": "uv",
       "args": [
         "run",
-        "--with",
-        "mcp[cli]",
-        "--with",
-        "python-osc",
-        "mcp",
-        "run",
-        "/Users/simonkansara/Desktop/mcp-ableton-server/mcp-ableton-server.py"
+        "ableton-mcp-server"
       ]
     }
   }
@@ -103,6 +120,19 @@ self.receive_port = 11001
 
 ## Contributing
 Feel free to submit issues, feature requests, or pull requests to improve this project.
+
+## Publishing Updates
+To publish new versions using UV:
+
+1. Update the version in `pyproject.toml`
+2. Build the package:
+   ```bash
+   uv build
+   ```
+3. Publish to PyPI:
+   ```bash
+   uv publish
+   ```
 
 ## License
 This project is licensed under the **MIT License**. See the `LICENSE` file for details.
